@@ -9,6 +9,23 @@
 import UIKit
 import CoreImage
 
+extension CIImage {
+    func checkerboarded() -> CIImage {
+        let checkerboardFilter = CIFilter(name: "CICheckerboardGenerator", parameters: [
+            "inputWidth": 40,
+            "inputColor0": CIColor.white,
+            "inputColor1": CIColor(color: UIColor.lightGray),
+            "inputCenter": CIVector(x: 0, y: 0),
+            "inputSharpness": 1
+        ])!
+        let sourceOverCompositingFilter = CIFilter(name: "CISourceOverCompositing", parameters: [
+            kCIInputBackgroundImageKey: checkerboardFilter.outputImage!,
+            kCIInputImageKey: self
+        ])!
+        return sourceOverCompositingFilter.outputImage!.cropped(to: self.extent)
+    }
+}
+
 class ViewController: UIViewController {
     private let imageView = UIImageView()
 
@@ -25,7 +42,8 @@ class ViewController: UIViewController {
         imageView.layer.borderWidth = 1
 
         let swiftImage = UIImage(named: "swift")!
-        imageView.image = swiftImage
+        let ciImage = CIImage(image: swiftImage)!
+        imageView.image = UIImage(ciImage: ciImage.checkerboarded())
     }
 }
 
